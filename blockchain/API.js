@@ -86,12 +86,8 @@ async function register_permission(deviceID, owner) {
 	}
 }
 
-function transfer_permission(deviceID, encryptedRenter, platformSign) {
-
-}
 
 module.exports = {
 	query_permission,
 	register_permission,
-	transfer_permission
 }

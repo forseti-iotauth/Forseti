@@ -340,11 +340,7 @@ int mpc_sha256(unsigned char* results[3], unsigned char* inputs[3], int numBits,
 		chunks[i] = calloc(64, 1); //512 bits
 		memcpy(chunks[i], inputs[i], chars);
 		chunks[i][chars] = 0x80;
-		//Last 8 chars used for storing length of input without padding, in big-endian.
-		//Since we only care for one block, we are safe with just using last 9 bits and 0'ing the rest
 
-		//chunk[60] = numBits >> 24;
-		//chunk[61] = numBits >> 16;
 		chunks[i][62] = numBits >> 8;
 		chunks[i][63] = numBits;
 		memcpy(views[i].x, chunks[i], 64);
@@ -393,7 +389,6 @@ int mpc_sha256(unsigned char* results[3], unsigned char* inputs[3], int numBits,
 	uint32_t h[3] = { hA[7],hA[7],hA[7] };
 	uint32_t temp1[3], temp2[3], maj[3];
 	for (int i = 0; i < 64; i++) {
-		//s1 = RIGHTROTATE(e,6) ^ RIGHTROTATE(e,11) ^ RIGHTROTATE(e,25);
 		mpc_RIGHTROTATE(e, 6, t0);
 		mpc_RIGHTROTATE(e, 11, t1);
 		mpc_XOR(t0, t1, t0);
@@ -401,25 +396,17 @@ int mpc_sha256(unsigned char* results[3], unsigned char* inputs[3], int numBits,
 		mpc_RIGHTROTATE(e, 25, t1);
 		mpc_XOR(t0, t1, s1);
 
-
-		//ch = (e & f) ^ ((~e) & g);
-		//temp1 = h + s1 + CH(e,f,g) + k[i]+w[i];
-
-		//t0 = h + s1
-
 		mpc_ADD(h, s1, t0, randomness, randCount, views, countY);
 
 
 		mpc_CH(e, f, g, t1, randomness, randCount, views, countY);
 
-		//t1 = t0 + t1 (h+s1+ch)
 		mpc_ADD(t0, t1, t1, randomness, randCount, views, countY);
 
 		mpc_ADDK(t1, k[i], t1, randomness, randCount, views, countY);
 
 		mpc_ADD(t1, w[i], temp1, randomness, randCount, views, countY);
 
-		//s0 = RIGHTROTATE(a,2) ^ RIGHTROTATE(a,13) ^ RIGHTROTATE(a,22);
 		mpc_RIGHTROTATE(a, 2, t0);
 		mpc_RIGHTROTATE(a, 13, t1);
 		mpc_XOR(t0, t1, t0);
@@ -429,18 +416,15 @@ int mpc_sha256(unsigned char* results[3], unsigned char* inputs[3], int numBits,
 
 		mpc_MAJ(a, b, c, maj, randomness, randCount, views, countY);
 
-		//temp2 = s0+maj;
 		mpc_ADD(s0, maj, temp2, randomness, randCount, views, countY);
 
 		memcpy(h, g, sizeof(uint32_t) * 3);
 		memcpy(g, f, sizeof(uint32_t) * 3);
 		memcpy(f, e, sizeof(uint32_t) * 3);
-		//e = d+temp1;
 		mpc_ADD(d, temp1, e, randomness, randCount, views, countY);
 		memcpy(d, c, sizeof(uint32_t) * 3);
 		memcpy(c, b, sizeof(uint32_t) * 3);
 		memcpy(b, a, sizeof(uint32_t) * 3);
-		//a = temp1+temp2;
 
 		mpc_ADD(temp1, temp2, a, randomness, randCount, views, countY);
 	}

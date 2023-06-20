@@ -3,7 +3,6 @@
 /*
  ============================================================================
  Name        : App.js
- Author      : Forseti
  Version     : 0.1
  Description : user command API for permission transfer and device control
  ============================================================================

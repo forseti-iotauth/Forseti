@@ -3,7 +3,6 @@
 /*
  ============================================================================
  Name        : platform.js
- Author      : Forseti
  Version     : 0.1
  Description : IoT platform API for permission transfer and device control
  		To simple this process, we consider only exist one permission transfer in this demon.
