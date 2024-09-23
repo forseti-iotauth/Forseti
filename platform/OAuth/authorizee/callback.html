@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform A - OAuth Callback</title>
+</head>
+<body>
+    <h1>OAuth Callback Handler</h1>
+    <div id="result"></div>
+    <button id="propose-control" style="display: none;">Propose Control</button>
+
+    <script>
+        let accessToken = null;
+
+        async function handleOAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+
+            if (!code) {
+                document.getElementById('result').innerText = 'Authorization code not found!';
+                return;
+            }
+
+            const clientId = 'client_id_123'; 
+            const clientSecret = 'client_secret_abc'; 
+            const redirectUri = 'http://localhost:3000/callback';
+
+            try {
+
+                const response = await fetch('http://localhost:4000/oauth/token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        grant_type: 'authorization_code',
+                        code: code,
+                        client_id: clientId,
+                        client_secret: clientSecret,
+                        redirect_uri: redirectUri
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.access_token) {
+                    accessToken = data.access_token;
+                    document.getElementById('result').innerText = 'Access Token: ' + accessToken;
+                    document.getElementById('propose-control').style.display = 'block';
+
+
+                    const userResponse = await fetch('http://localhost:4000/api/userinfo', {
+                        headers: {
+                            'Authorization': `Bearer ${accessToken}`
+                        }
+                    });
+
+                    const userData = await userResponse.json();
+                    document.getElementById('result').innerText += `\nHello, ${userData.name}!`;
+                } else {
+                    document.getElementById('result').innerText = 'Failed to get access token.';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerText = 'An error occurred: ' + error.message;
+            }
+        }
+
+        document.getElementById('propose-control').addEventListener('click', async function() {
+            if (!accessToken) {
+                alert('Access token is not available!');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:4000/api/propose-control', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                alert('Response from proposeControl: ' + data.message);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to call proposeControl: ' + error.message);
+            }
+        });
+
+        handleOAuthCallback();
+    </script>
+</body>
+</html>
+

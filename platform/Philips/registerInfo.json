@@ -1,0 +1,22 @@
+[
+  {
+    "deviceID": "pulb",
+    "preproof": "aaa"
+  },
+  {
+    "deviceID": "xyz",
+    "preproof": "bbb"
+  },
+  {
+    "deviceID": "abc",
+    "preproof": "ccc"
+  },
+  {
+    "deviceID": "deviceTest2",
+    "preproof": "caass"
+  },
+  {
+    "deviceID": "bulbs",
+    "preproof": "56fceb1df323bbbe186ba0157d4c45664cc5c0a024044241cb2b923ef745b0da"
+  }
+]
